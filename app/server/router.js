@@ -6,13 +6,17 @@ var EM = require('./modules/email-dispatcher');
 module.exports = function(app) {
 
 // main login page //
-
+	
+	// Si pedimos el raizpor POST habrá dos posibilidades que no tenga definidas las cookies
+	// si esto pasa lo mandamos directamente a que se loguee
+	// si las tiene definidas lo chequeamos e intentamsos hacer un autologinS
 	app.get('/', function(req, res){
 	// check if the user's credentials are saved in a cookie //
 		if (req.cookies.user == undefined || req.cookies.pass == undefined){
 			res.render('login', { title: 'Hello - Please Login To Your Account' });
 		}	else{
 	// attempt automatic login //
+	// pillamos el usuario y la clave de la cookie de la petición [CHEQUEAR ESTO, CLAVE EN LA COOKIE??]
 			AM.autoLogin(req.cookies.user, req.cookies.pass, function(o){
 				if (o != null){
 				    req.session.user = o;
@@ -24,12 +28,15 @@ module.exports = function(app) {
 		}
 	});
 	
+	// Si accedemos al raiz por POST es que hemos hecho un intento de login
 	app.post('/', function(req, res){
 		AM.manualLogin(req.param('user'), req.param('pass'), function(e, o){
 			if (!o){
 				res.send(e, 400);
 			}	else{
+				// asignamos el objeto a la sesion
 			    req.session.user = o;
+			    // si está activado el remember-me ponemos una cookie con el usuario y la clave
 				if (req.param('remember-me') == 'true'){
 					res.cookie('user', o.user, { maxAge: 900000 });
 					res.cookie('pass', o.pass, { maxAge: 900000 });

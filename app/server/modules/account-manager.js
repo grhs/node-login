@@ -24,6 +24,8 @@ var accounts = db.collection('accounts');
 
 exports.autoLogin = function(user, pass, callback)
 {
+	//Buscamos el usuario y comprobamos si la clave coincide
+	//Si coincide pasamos el objeto o al callback si no pasamos null
 	accounts.findOne({user:user}, function(e, o) {
 		if (o){
 			o.pass == pass ? callback(o) : callback(null);
@@ -35,6 +37,7 @@ exports.autoLogin = function(user, pass, callback)
 
 exports.manualLogin = function(user, pass, callback)
 {
+	// primero buscamos al usuario y si está comprobamos su pass
 	accounts.findOne({user:user}, function(e, o) {
 		if (o == null){
 			callback('user-not-found');
